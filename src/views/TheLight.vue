@@ -1,0 +1,84 @@
+<template>
+  <div class="about">
+    <p>SpriteJSNext默认支持几种常见的光源，我们可以设置环境光（ambientColor），方向光（directionalLight）和点光源（pointLight）。</p>
+    <div id="stage"></div>
+  </div>
+</template>
+<script>
+// @ is an alias to /src
+import * as spritejs from 'spritejs';
+import * as spriteExtend3d from 'sprite-extend-3d';
+// 本地导入json
+// import * as birdsJsonUrl from '@/assets/5f6911b7b91c88da.json'
+export default {
+  name: 'TheLight',
+  components: {
+  },
+  mounted() {
+    this.init()
+  },  
+  methods: {
+    init() {
+      //  导入场景 
+      const {Scene} = spritejs;
+      //  导入立方体和着色器
+      const {Cube, shaders} = spriteExtend3d;
+      //  渲染容器
+      const container = document.getElementById('stage');
+      //  实例化场景
+      const scene = new Scene({
+        container,
+      });
+      //  图层使用3D渲染
+      const layer = scene.layer3d('fglayer', {
+        //  环境光
+        ambientColor: '#ff000080',
+        //  方向光位置
+        directionalLight: [1, 0, 0],
+        //  方向光颜色
+        directionalLightColor: [1, 1, 1, 0.5],
+        //  点光源颜色
+        pointLightColor: 'blue',
+        //  点光源颜色
+        pointLightPosition: [5, 3, 6],
+        camera: {
+          fov: 35, // 相机的视野
+          pos: [3, 3, 5], // 相机的位置
+        },
+      });
+
+      //  实例化图层相机
+      const camera = layer.camera;
+      //  设置相机朝向
+      camera.lookAt([0, 0, 0]);
+      
+      //  创建program对象
+      const program = layer.createProgram({
+        //  使用通用做色器
+        ...shaders.NORMAL_GEOMETRY,
+        //  无剔除面
+        cullFace: null,
+      });
+
+      //  实例化立方体
+      const cube = new Cube(program, {
+        //  颜色为灰色，方便反射展示对应光
+        colors: 'grey',
+      });
+      //  添加立方体到图层
+      layer.append(cube);
+      //  图层添加控制
+      layer.setOrbit();
+    }
+  }
+}
+</script>
+<style scoped>
+#stage{
+  width:600px;
+  height:360px;
+  background-color:#FFF;
+  margin:0 auto;
+  border:2px solid skyblue;
+}
+</style>
